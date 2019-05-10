@@ -1,0 +1,36 @@
+{
+  "name": "rundata",
+  "version": "0.5.0",
+  "description": "Library to grab information off the athletic.net and milesplit websites",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reteps/rundata.git"
+  },
+  "keywords": [
+    "cross",
+    "country",
+    "track",
+    "running",
+    "milesplit",
+    "athletic.net",
+    "data"
+  ],
+  "author": "Peter Stenger",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/reteps/rundata/issues"
+  },
+  "homepage": "https://github.com/reteps/rundata#readme",
+  "devDependencies": {
+    "jest": "^24.8.0"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.3",
+    "jsdoc": "^3.6.1"
+  }
+}
