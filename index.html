@@ -1,0 +1,117 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script src="//d3js.org/d3.v4.min.js"></script>
+    <script src="./index.js"></script>
+</head>
+<body>
+    <div> Peter's Test lib</div>
+    <script>
+        let engine = new RunData();
+        engine.getResultsGrid("13318","2014","M").then(res => {
+            createChart(res)
+        })
+        function createChart(data) {
+            console.log(data)
+            var width = 1000
+            var height = 500
+            var horizontalOffset = 50
+            var verticalOffset = 30
+            var svg = d3.select('body').append('svg')
+            .attr('width', width)
+            .attr('height', height)
+
+            var x = d3.scaleBand() // This will be the dates
+            .domain(Object.keys(data))
+            .range([horizontalOffset, width - horizontalOffset])
+            .round(true) // rangeRound is shorthand
+            var y = d3.scaleLinear()
+            .domain([1, Math.max(...Object.values(data).map(v => v.filter(t => t.time !== null).length))])
+            .range([verticalOffset, height - verticalOffset]);
+
+            var xAxis = d3.axisBottom(x)
+            var yAxis = d3.axisLeft(y)
+            svg.append('g')
+            .attr("transform", `translate(${horizontalOffset - (x.bandwidth()/2)},${height - verticalOffset})`)
+            .call(xAxis)
+            svg.append('g')
+            .attr("transform", `translate(${horizontalOffset},0)`)
+            .call(yAxis)
+            let flatData = Object.values(data).flatMap(d=>d)
+            let uniqueNames = [...new Set(flatData.map(d=>d.name))]
+            //console.log(uniqueNames)
+            for (let name of uniqueNames) {
+                let athleteData = flatData.filter(d => d.name == name)
+                // Now we add fillers
+                // (0) sort in chronological order
+                // athleteData.sort(function(a,b) {
+                // return moment(a.date).isBefore(moment(b.date)) ? -1 : 1;
+                // })
+                // //console.log(athleteData)
+                // // (1) find last legit time
+                // let times = athleteData.map(d=>d.time)
+                // let lastTime = times.slice().reverse().filter(d=>d !== null)[0] // the last legit time
+                // let lastTimeIdx = times.indexOf(lastTime)
+                // console.log(lastTime, times[lastTimeIdx], athleteData[lastTimeIdx].time)
+                // // (2) fill in athlete data
+                // for (let i=1;i<athleteData.length;i++) {
+                //     if (i > lastTimeIdx) {
+                //         console.log('Skipping')
+                //         continue
+                //     }// the rest are null, so keep them
+                //     if (athleteData[i-1].time == null) { continue }
+                //     if (athleteData[i].time == null) {
+                //         console.log('Setting time...')
+                //     athleteData[i].time = athleteData[i-1].time
+                //     }
+                // }
+                console.log(athleteData)
+                var lineF = d3.line()
+                .x(d=>x(d.date))//function(d) { return x(d.date); })
+                .y(d=>y(d.rank))//function(d) { return y(d.rank); });
+                .defined(d => d.time !== null) // stop line when the end of the season approaches
+                //var filteredData = athleteData.filter(d=>lineF.defined(d));
+                //svg.append('path').attr('stroke','red').attr('fill', 'none').attr('d', lineF(filteredData));
+                svg.append("path")
+                .datum(athleteData)
+                .attr("d", lineF)
+                .attr('fill', 'none')
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .attr("stroke-width", "2")
+                .attr('stroke', 'black')
+
+            }
+              var node = svg.append("g")
+              .selectAll("circle")
+              .data(flatData)
+              .enter().append("circle")
+              .attr("class", "point")
+              .attr("cx", d=>x(d.date))
+              .attr("cy", d=>y(d.rank))
+              .attr('fill', 'blue')
+              .attr("r", d=> (d.time === null) ? 0 : 6)
+              .attr("stroke-width", 1.5)
+              .attr('opacity', '0.6');
+            // for (athlete of data.lines) {
+            //     // var line = d3.line()
+            //     // .x(d => x(d.date))
+            //     // .y(d => {
+            //     //     if (d['time'] == null) {
+            //     //         console.log('null time')
+            //     //         return 0;
+            //     //     }
+            //     //     data.lines.map(year => year.d.time
+            //     // })
+            //     svg.append('path')
+            // }
+            // For each athlete, we need a seperate line
+        }
+    </script>
+</body>
+</html>
